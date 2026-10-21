@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roll a Dice 2</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            perspective: 1000px;
+        }
+
+        .scene {
+            width: 140px;
+            height: 140px;
+            perspective: 600px;
+        }
+
+        .dice {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.15, 0.85, 0.35, 1.2);
+        }
+
+        .dice-face {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border: 2px solid #cbd5e1;
+            border-radius: 24px;
+            display: grid;
+            grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+            padding: 16px;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.06), 0 10px 25px rgba(0,0,0,0.15);
+            backface-visibility: hidden;
+        }
+
+        .dot {
+            background-color: #1e1b4b;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            align-self: center;
+            justify-self: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Face positioning */
+        .face-1 { transform: rotateY(0deg) translateZ(70px); }
+        .face-2 { transform: rotateX(-90deg) translateZ(70px); }
+        .face-3 { transform: rotateY(90deg) translateZ(70px); }
+        .face-4 { transform: rotateY(-90deg) translateZ(70px); }
+        .face-5 { transform: rotateX(90deg) translateZ(70px); }
+        .face-6 { transform: rotateY(180deg) translateZ(70px); }
+
+        /* Dot placements for each face */
+        .dot-center { grid-column: 2; grid-row: 2; }
+        .dot-top-left { grid-column: 1; grid-row: 1; }
+        .dot-top-right { grid-column: 3; grid-row: 1; }
+        .dot-mid-left { grid-column: 1; grid-row: 2; }
+        .dot-mid-right { grid-column: 3; grid-row: 2; }
+        .dot-bottom-left { grid-column: 1; grid-row: 3; }
+        .dot-bottom-right { grid-column: 3; grid-row: 3; }
+
+        @keyframes tumble {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            33% { transform: rotateX(360deg) rotateY(180deg) rotateZ(90deg); }
+            66% { transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg); }
+            100% { transform: rotateX(1080deg) rotateY(540deg) rotateZ(270deg); }
+        }
+
+        .is-rolling {
+            animation: tumble 0.8s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-800 via-purple-300 to-white text-slate-900 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-sm w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/50 flex flex-col items-center">
+        
+        <!-- 3D Dice Scene -->
+        <div class="scene my-8">
+            <div id="dice" class="dice">
+                <!-- Face 1 -->
+                <div class="dice-face face-1">
+                    <div class="dot dot-center"></div>
+                </div>
+                <!-- Face 2 -->
+                <div class="dice-face face-2">
+                    <div class="dot dot-top-left"></div>
+                    <div class="dot dot-bottom-right"></div>
+                </div>
+                <!-- Face 3 -->
+                <div class="dice-face face-3">
+                    <div class="dot dot-top-left"></div>
+                    <div class="dot dot-center"></div>
+                    <div class="dot dot-bottom-right"></div>
+                </div>
+                <!-- Face 4 -->
+                <div class="dice-face face-4">
+                    <div class="dot dot-top-left"></div>
+                    <div class="dot dot-top-right"></div>
+                    <div class="dot dot-bottom-left"></div>
+                    <div class="dot dot-bottom-right"></div>
+                </div>
+                <!-- Face 5 -->
+                <div class="dice-face face-5">
+                    <div class="dot dot-top-left"></div>
+                    <div class="dot dot-top-right"></div>
+                    <div class="dot dot-center"></div>
+                    <div class="dot dot-bottom-left"></div>
+                    <div class="dot dot-bottom-right"></div>
+                </div>
+                <!-- Face 6 -->
+                <div class="dice-face face-6">
+                    <div class="dot dot-top-left"></div>
+                    <div class="dot dot-top-right"></div>
+                    <div class="dot dot-mid-left"></div>
+                    <div class="dot dot-mid-right"></div>
+                    <div class="dot dot-bottom-left"></div>
+                    <div class="dot dot-bottom-right"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons Container -->
+        <div class="flex flex-col gap-3.5 w-full mt-4">
+            <button id="rollBtn" class="w-full bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 active:scale-95 text-white font-semibold py-4 px-6 rounded-2xl shadow-xl shadow-purple-600/30 transition-all duration-200 flex items-center justify-center text-lg">
+                Putar Dadu
+            </button>
+            <button id="resetBtn" class="w-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-semibold py-3.5 px-6 rounded-2xl shadow-md transition-all duration-200 flex items-center justify-center text-base">
+                Reset
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        const diceEl = document.getElementById('dice');
+        const rollBtn = document.getElementById('rollBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let rollState = 0; // 0: belum diputar, 1: putaran pertama, 2: putaran kedua
+        let firstValue = 0;
+
+        // Rotasi CSS untuk menampilkan setiap sisi dadu di depan dengan sempurna
+        const faceRotations = {
+            1: 'rotateX(0deg) rotateY(0deg)',
+            2: 'rotateX(90deg) rotateY(0deg)',
+            3: 'rotateX(0deg) rotateY(-90deg)',
+            4: 'rotateX(0deg) rotateY(90deg)',
+            5: 'rotateX(-90deg) rotateY(0deg)',
+            6: 'rotateX(180deg) rotateY(0deg)'
+        };
+
+        function setInitialPose() {
+            diceEl.style.transition = 'none';
+            diceEl.style.transform = faceRotations[1];
+        }
+
+        // Set initial pose on load
+        setInitialPose();
+
+        function rollDice() {
+            diceEl.classList.add('is-rolling');
+            rollBtn.disabled = true;
+
+            setTimeout(() => {
+                let targetValue;
+
+                if (rollState === 0 || rollState === 2) {
+                    // Putaran pertama: Nilai lebih sedikit/rendah (1 atau 2)
+                    targetValue = Math.random() < 0.5 ? 1 : 2;
+                    firstValue = targetValue;
+                    rollState = 1;
+                } else if (rollState === 1) {
+                    // Putaran kedua: Nilai lebih tinggi dari putaran pertama (dari firstValue + 1 sampai 6)
+                    const highValues = [];
+                    for (let i = firstValue + 1; i <= 6; i++) {
+                        highValues.push(i);
+                    }
+                    targetValue = highValues[Math.floor(Math.random() * highValues.length)];
+                    rollState = 2;
+                    rollBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+
+                diceEl.classList.remove('is-rolling');
+                diceEl.style.transition = 'transform 0.8s cubic-bezier(0.15, 0.85, 0.35, 1.2)';
+                diceEl.style.transform = faceRotations[targetValue];
+
+                if (rollState !== 2) {
+                    rollBtn.disabled = false;
+                }
+            }, 800);
+        }
+
+        function resetGame() {
+            diceEl.classList.add('is-rolling');
+            setTimeout(() => {
+                rollState = 0;
+                firstValue = 0;
+                diceEl.classList.remove('is-rolling');
+                diceEl.style.transition = 'transform 0.8s cubic-bezier(0.15, 0.85, 0.35, 1.2)';
+                diceEl.style.transform = faceRotations[1];
+                rollBtn.disabled = false;
+                rollBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }, 400);
+        }
+
+        rollBtn.addEventListener('click', rollDice);
+        resetBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>
